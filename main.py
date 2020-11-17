@@ -9,14 +9,19 @@ def generate_sample(height, width):
 
 
 
-input_board = generate_sample(3, 4)
+input_board = generate_sample(2, 4)
 starting_node = BoardNode(input_board)
 
+copied_array = np.copy(input_board)
 
-print_board_node(starting_node)
-children = starting_node.get_possible_children()
-print()
-while not children.empty():
-    child = children.get()
-    print_board_node(child.board)
-    print()
+print(BoardNode(input_board) == BoardNode(copied_array))
+
+
+#
+# print_board_node(starting_node)
+# children = starting_node.get_possible_children()
+# print()
+# while not children.empty():
+#     child = children.get()
+#     print_board_node(child.board)
+#     print()

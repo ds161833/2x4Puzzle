@@ -33,6 +33,10 @@ class BoardNode:
         self.__board_height = len(board)
         self.__board_width = len(board[0])
 
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        return np.array_equal(self.board, other.board)
+
     def get_possible_children(self):
 
         children = PriorityQueue()
