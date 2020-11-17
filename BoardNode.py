@@ -59,4 +59,4 @@ class BoardNode:
         (i, j) = np.where(self.board == 0)
         return i[0], j[0]
 
-    ///SUP SUP SUP
+ffffffff
