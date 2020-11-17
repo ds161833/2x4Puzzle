@@ -2,7 +2,7 @@ from queue import PriorityQueue
 import numpy as np
 
 from NodeTuple import NodeTuple
-from PriorityQueueUtility import add_pq_to_pq
+from PriorityQueueUtility import merge_queues
 
 regular_move_cost = 1
 wrapping_move_cost = 2
@@ -33,13 +33,17 @@ class BoardNode:
         """Overrides the default implementation"""
         return np.array_equal(self.board, other.board)
 
+    def __hash__(self):
+        """Overrides the default implementation"""
+        return hash(str(list(self.board)))
+
     def get_possible_children(self):
 
         children = PriorityQueue()
 
-        add_pq_to_pq(children, self.get_regular_move_states())
-        add_pq_to_pq(children, self.get_wrapping_move_states())
-        add_pq_to_pq(children, self.get_diagonal_move_states())
+        merge_queues(children, self.get_regular_move_states())
+        merge_queues(children, self.get_wrapping_move_states())
+        merge_queues(children, self.get_diagonal_move_states())
 
         return children
 

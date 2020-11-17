@@ -1,5 +1,10 @@
+import copy
+
 import numpy as np
 from BoardNode import BoardNode
+from NodeTuple import NodeTuple
+from PriorityQueueUtility import merge_queues, get_node_tuple_from_set
+from UCS import uniform_cost_search
 from pretty_print import print_board_node
 
 height = 2
@@ -22,14 +27,12 @@ def generate_goal_nodes(height, width):
             np.arange(height * width), -1
         ).reshape(width, height)
     )
-    return goal_1, goal_2
+    return BoardNode(goal_1), BoardNode(goal_2)
 
 
-input_board = generate_sample(height, width)
-starting_node = BoardNode(input_board)
+# result = uniform_cost_search(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width))
+result = uniform_cost_search(generate_goal_nodes(height, width)[0], generate_goal_nodes(height, width))
 
-goal_1, goal_2 = generate_goal_nodes(height, width)
 
-print_board_node(BoardNode(goal_1))
-print()
-print_board_node(BoardNode(goal_2))
+for node_tuple in result:
+    print_board_node(node_tuple.node)
