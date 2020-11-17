@@ -23,6 +23,8 @@ class BoardNode:
     __children = None
     __board_height = None
     __board_width = None
+    g = 0
+    f = 0
 
     def __init__(self, board, num_swapped=0):
         self.board = board

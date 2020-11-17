@@ -1,6 +1,8 @@
 import copy
 
 import numpy as np
+
+from Astar import astar
 from BoardNode import BoardNode
 from NodeTuple import NodeTuple
 from PriorityQueueUtility import merge_queues, get_node_tuple_from_set
@@ -29,8 +31,15 @@ def generate_goal_nodes(height, width):
     )
     return BoardNode(goal_1, 0), BoardNode(goal_2, 0)
 
+def h1(node):
+    return 0
 
-result = uniform_cost_search(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width))
+def h2(node):
+    return 0
+
+# result = uniform_cost_search(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width))
+
+result = astar(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width), lambda node: h2(node))
 
 
 for node_tuple in result.queue:
