@@ -31,4 +31,8 @@ def print_board_node(node):
 
 
 def print_node_tuple(node_tuple):
-    print(node_tuple.cost + " " + node_tuple.node.board)
+    string = str(node_tuple.cost) + " " + str(node_tuple.node.num_swapped) + " "
+    for number_row in node_tuple.node.board:
+        for number in number_row:
+            string += add_color(number, cyan, 1) + " "
+    print(string)
