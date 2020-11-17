@@ -14,7 +14,7 @@ starting_node = BoardNode(input_board)
 
 
 print_board_node(starting_node)
-children = starting_node.get_regular_move_states()
+children = starting_node.get_possible_children()
 print()
 while not children.empty():
     child = children.get()

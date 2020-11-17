@@ -7,10 +7,20 @@ regular_move_cost = 1
 wrapping_move_cost = 2
 diagonal_move_cost = 3
 
+go_up_left = (-1, -1)
+go_up = (-1, 0)
+go_up_right = (-1, 1)
+go_right = (0, 1)
 
-def add_list_to_pq(q, q2, edge_cost):
-    for item in q2:
-        q.put((edge_cost, item))
+go_down_right = (1, 1)
+go_down = (1, 0)
+go_down_left = (1, -1)
+go_left = (0, -1)
+
+
+def add_list_to_pq(q, q2):
+    for item in q2.queue:
+        q.put(item)
 
 
 class BoardNode:
@@ -27,42 +37,71 @@ class BoardNode:
 
         children = PriorityQueue()
 
-        add_list_to_pq(children, self.__get_regular_move_states(), regular_move_cost)
+        add_list_to_pq(children, self.get_regular_move_states())
+        add_list_to_pq(children, self.get_wrapping_move_states())
+        add_list_to_pq(children, self.get_diagonal_move_states())
 
-        if self.__is_corner_zero():
-            add_list_to_pq(children, self.__get_wrappint_move_states(), wrapping_move_cost)
-            add_list_to_pq(children, self.__get_diagonal_move_states(), diagonal_move_cost)
         return children
 
-    def __is_corner_zero(self):
-        return self.board[0][0] == 0 or self.board[0][3] == 0 or \
-               self.board[1][0] == 0 or self.board[1][3] == 0
-
     def get_regular_move_states(self):
-        go_up = (-1, 0)
-        go_down = (1, 0)
-        go_right = (0, 1)
-        go_left = (0, -1)
-
         directions = [go_up, go_down, go_right, go_left]
-        allow_wrapping = False
 
+        allow_wrapping = False
+        weight = regular_move_cost
+
+        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return priority_queue
+
+    def get_wrapping_move_states(self):
+        directions = []
+
+        if self.__is_corner_zero():
+            # wrapping moves make no sense as you can just go up regularly, no teleportation required
+            allow_vertical_wrap = self.__board_height > 2
+
+            if self.__is_zero_leftmost():
+                directions.append(go_left)
+            if self.__is_zero_rightmost():
+                directions.append(go_right)
+            if allow_vertical_wrap:
+                if self.__is_zero_at_top():
+                    directions.append(go_up)
+                if self.__is_zero_at_bottom():
+                    directions.append(go_down)
+
+        allow_wrapping = True
+        weight = wrapping_move_cost
+
+        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return priority_queue
+
+    def get_diagonal_move_states(self):
+        directions = []
+
+        if self.__is_corner_zero():
+            if (self.__is_zero_at_top() and self.__is_zero_leftmost()) or \
+                    (self.__is_zero_at_bottom() and self.__is_zero_rightmost()):
+                directions.append(go_up_left)
+                directions.append(go_down_right)
+
+            if (self.__is_zero_at_top() and self.__is_zero_rightmost()) or \
+                    (self.__is_zero_at_bottom() and self.__is_zero_leftmost()):
+                directions.append(go_up_right)
+                directions.append(go_down_left)
+
+        allow_wrapping = True
+        weight = diagonal_move_cost
+
+        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return priority_queue
+
+    def __generate_priority_queue_children(self, directions, allow_wrapping, weight):
         children = self.__generate_children_from_directions(directions, allow_wrapping)
 
         queue_items = PriorityQueue()
         for child in children:
-            queue_items.put(NodeTuple(1, child))
+            queue_items.put(NodeTuple(weight, child))
         return queue_items
-
-    def __get_wrapping_move_states(self):
-        generated_children = []
-
-        return generated_children
-
-    def __get_diagonal_move_states(self):
-        generated_children = []
-
-        return generated_children
 
     # directions - list of tuples for directions
     def __generate_children_from_directions(self, directions, allow_wrapping):
@@ -123,3 +162,25 @@ class BoardNode:
         new_board.board[a_tuple[0]][a_tuple[1]] = b
         new_board.board[b_tuple[0]][b_tuple[1]] = a
         return new_board
+
+    def __is_corner_zero(self):
+        return self.board[0][0] == 0 or \
+               self.board[0][self.__board_width - 1] == 0 or \
+               self.board[self.__board_height - 1][0] == 0 or \
+               self.board[self.__board_height - 1][self.__board_width - 1] == 0
+
+    def __is_zero_leftmost(self):
+        first_column = self.board[:, 0]
+        return 0 in first_column
+
+    def __is_zero_rightmost(self):
+        last_column = self.board[:, self.__board_width - 1]
+        return 0 in last_column
+
+    def __is_zero_at_top(self):
+        top_row = self.board[0, :]
+        return 0 in top_row
+
+    def __is_zero_at_bottom(self):
+        bottom_row = self.board[self.__board_height - 1, :]
+        return 0 in bottom_row
