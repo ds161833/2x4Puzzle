@@ -1,6 +1,8 @@
 from queue import PriorityQueue
 import numpy as np
 
+from NodeTuple import NodeTuple
+
 regular_move_cost = 1
 wrapping_move_cost = 2
 diagonal_move_cost = 3
@@ -37,7 +39,6 @@ class BoardNode:
                self.board[1][0] == 0 or self.board[1][3] == 0
 
     def get_regular_move_states(self):
-
         go_up = (-1, 0)
         go_down = (1, 0)
         go_right = (0, 1)
@@ -46,7 +47,12 @@ class BoardNode:
         directions = [go_up, go_down, go_right, go_left]
         allow_wrapping = False
 
-        return self.__generate_children_from_directions(directions, allow_wrapping)
+        children = self.__generate_children_from_directions(directions, allow_wrapping)
+
+        queue_items = PriorityQueue()
+        for child in children:
+            queue_items.put(NodeTuple(1, child))
+        return queue_items
 
     def __get_wrapping_move_states(self):
         generated_children = []
