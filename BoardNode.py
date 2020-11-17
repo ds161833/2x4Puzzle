@@ -2,6 +2,7 @@ from queue import PriorityQueue
 import numpy as np
 
 from NodeTuple import NodeTuple
+from PriorityQueueUtility import add_pq_to_pq
 
 regular_move_cost = 1
 wrapping_move_cost = 2
@@ -16,11 +17,6 @@ go_down_right = (1, 1)
 go_down = (1, 0)
 go_down_left = (1, -1)
 go_left = (0, -1)
-
-
-def add_list_to_pq(q, q2):
-    for item in q2.queue:
-        q.put(item)
 
 
 class BoardNode:
@@ -41,9 +37,9 @@ class BoardNode:
 
         children = PriorityQueue()
 
-        add_list_to_pq(children, self.get_regular_move_states())
-        add_list_to_pq(children, self.get_wrapping_move_states())
-        add_list_to_pq(children, self.get_diagonal_move_states())
+        add_pq_to_pq(children, self.get_regular_move_states())
+        add_pq_to_pq(children, self.get_wrapping_move_states())
+        add_pq_to_pq(children, self.get_diagonal_move_states())
 
         return children
 
