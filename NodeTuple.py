@@ -1,11 +1,12 @@
 class NodeTuple(object):
 
-    def __init__(self, cost, node):
-        self.node = node
+    def __init__(self, cost, node, priority):
         self.cost = cost
+        self.node = node
+        self.priority = priority
 
     def __lt__(self, other):
-        return self.cost < other.cost
+        return self.priority < other.priority
 
     def __eq__(self, other):
         return self.node == other.node

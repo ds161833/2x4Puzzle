@@ -23,8 +23,7 @@ class BoardNode:
     __children = None
     __board_height = None
     __board_width = None
-    g = 0
-    f = 0
+
 
     def __init__(self, board, num_swapped=0):
         self.board = board
@@ -42,11 +41,11 @@ class BoardNode:
 
     def get_possible_children(self, base_cost):
 
-        children = PriorityQueue()
+        children = []
 
-        merge_queues(children, self.get_regular_move_states(base_cost))
-        merge_queues(children, self.get_wrapping_move_states(base_cost))
-        merge_queues(children, self.get_diagonal_move_states(base_cost))
+        children += self.get_regular_move_states(base_cost)
+        children += self.get_wrapping_move_states(base_cost)
+        children += self.get_diagonal_move_states(base_cost)
 
         return children
 
@@ -56,8 +55,8 @@ class BoardNode:
         allow_wrapping = False
         weight = regular_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
     def get_wrapping_move_states(self, base_cost=0):
         directions = []
@@ -79,8 +78,8 @@ class BoardNode:
         allow_wrapping = True
         weight = wrapping_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
     def get_diagonal_move_states(self, base_cost=0):
         directions = []
@@ -99,16 +98,16 @@ class BoardNode:
         allow_wrapping = True
         weight = diagonal_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
     def __generate_priority_queue_children(self, directions, allow_wrapping, weight):
         children = self.__generate_children_from_directions(directions, allow_wrapping)
 
-        queue_items = PriorityQueue()
+        children_with_weights = []
         for child in children:
-            queue_items.put(NodeTuple(weight, child))
-        return queue_items
+            children_with_weights.append((weight, child))
+        return children_with_weights
 
     # directions - list of tuples for directions
     def __generate_children_from_directions(self, directions, allow_wrapping):
