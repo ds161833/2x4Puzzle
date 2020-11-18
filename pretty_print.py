@@ -36,3 +36,20 @@ def print_node_tuple(node_tuple):
         for number in number_row:
             string += add_color(number, cyan, 1) + " "
     print(string)
+
+def node_tuple_to_search(node_tuple):
+    string = str(node_tuple.f) + " " + str(node_tuple.g) + " " + str(node_tuple.h) + " "
+    for number_row in node_tuple.node.board:
+        for number in number_row:
+            string += str(number) + " "
+    print(string)
+    return string
+
+def node_tuple_to_solution(node_tuple):
+    string = str(node_tuple.cost) + " " + str(node_tuple.node.num_swapped) + " "
+    for number_row in node_tuple.node.board:
+        for number in number_row:
+            string += str(number) + " "
+    print(string)
+    return string
+

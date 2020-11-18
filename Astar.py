@@ -10,24 +10,22 @@ def astar(initial_node, goal_nodes, h):
 
     # priority queue of NodeTuples
     frontier = PriorityQueue()
-    frontier.put(NodeTuple(0, initial_node, 0))
+    frontier.put(NodeTuple(0, initial_node, 0, None))
     while not frontier.empty():
-
         current_node_tuple = frontier.get()
 
+        explored.put(current_node_tuple)
 
         if is_goal_node(current_node_tuple.node, goal_nodes):
-            explored.put(current_node_tuple)
-            return explored
-
-        explored.put(current_node_tuple)
+            return current_node_tuple.get_parent_chain(), explored
 
         current_children_nodes = current_node_tuple.node.get_possible_children(current_node_tuple.cost)
         current_children = PriorityQueue()
         for child_node in current_children_nodes:
             cost = child_node[0]
             node = child_node[1]
-            current_children.put(NodeTuple(cost, node, h(node, goal_nodes, cost)))
+            h_value = h(node, goal_nodes, cost)
+            current_children.put(NodeTuple(cost, node, h_value, current_node_tuple, h_value, cost, h_value - cost))
 
         for child_node_tuple in current_children.queue:
             if (child_node_tuple not in explored.queue) and (child_node_tuple not in frontier.queue):
@@ -36,7 +34,7 @@ def astar(initial_node, goal_nodes, h):
                 if child_node_tuple in frontier.queue:
                     replace_if_higher_cost(child_node_tuple, frontier)
 
-    return None
+    return None, None
 
 
 def is_goal_node(node, goal_nodes):
@@ -48,4 +46,9 @@ def replace_if_higher_cost(new_node_tuple, node_tuple_pq):
     for node_tuple in node_tuple_pq.queue:
         if node_tuple == new_node_tuple:
             if node_tuple.cost > new_node_tuple.cost:
-                node_tuple = new_node_tuple
+                res = list(node_tuple_pq.queue)
+                res.remove(node_tuple)
+                node_tuple_pq = PriorityQueue()
+                for item in res:
+                    node_tuple_pq.put(item)
+                return node_tuple_pq

@@ -24,8 +24,8 @@ class BoardNode:
     __board_height = None
     __board_width = None
 
-
-    def __init__(self, board, num_swapped=0):
+    def __init__(self, board, parent = None, num_swapped=0):
+        self.parent = parent
         self.board = board
         self.num_swapped = num_swapped
         self.__board_height = len(board)
@@ -80,6 +80,7 @@ class BoardNode:
 
         children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
         return children_with_weights
+
 
     def get_diagonal_move_states(self, base_cost=0):
         directions = []
@@ -164,7 +165,7 @@ class BoardNode:
         a = self.board[a_tuple[0]][a_tuple[1]]
         b = self.board[b_tuple[0]][b_tuple[1]]
 
-        new_board = BoardNode(self.board.copy(), b)
+        new_board = BoardNode(self.board.copy(), self, b)
 
         new_board.board[a_tuple[0]][a_tuple[1]] = b
         new_board.board[b_tuple[0]][b_tuple[1]] = a
