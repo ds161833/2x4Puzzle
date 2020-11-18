@@ -57,7 +57,7 @@ def h1(node, goal_nodes):
 def h2(node, goal_nodes):
     h = [0, 0]
     goal_node = goal_nodes[0]
-    for z in range(2)
+    for z in range(2):
         for i in range(height):
             for j in range(width):
                 current_number = node.board[i][j]
