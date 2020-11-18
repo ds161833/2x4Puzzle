@@ -2,7 +2,7 @@ from queue import PriorityQueue
 import numpy as np
 
 from NodeTuple import NodeTuple
-from PriorityQueueUtility import add_pq_to_pq
+from PriorityQueueUtility import merge_queues
 
 regular_move_cost = 1
 wrapping_move_cost = 2
@@ -24,8 +24,10 @@ class BoardNode:
     __board_height = None
     __board_width = None
 
-    def __init__(self, board):
+
+    def __init__(self, board, num_swapped=0):
         self.board = board
+        self.num_swapped = num_swapped
         self.__board_height = len(board)
         self.__board_width = len(board[0])
 
@@ -33,26 +35,30 @@ class BoardNode:
         """Overrides the default implementation"""
         return np.array_equal(self.board, other.board)
 
-    def get_possible_children(self):
+    def __hash__(self):
+        """Overrides the default implementation"""
+        return hash(str(list(self.board)))
 
-        children = PriorityQueue()
+    def get_possible_children(self, base_cost):
 
-        add_pq_to_pq(children, self.get_regular_move_states())
-        add_pq_to_pq(children, self.get_wrapping_move_states())
-        add_pq_to_pq(children, self.get_diagonal_move_states())
+        children = []
+
+        children += self.get_regular_move_states(base_cost)
+        children += self.get_wrapping_move_states(base_cost)
+        children += self.get_diagonal_move_states(base_cost)
 
         return children
 
-    def get_regular_move_states(self):
+    def get_regular_move_states(self, base_cost=0):
         directions = [go_up, go_down, go_right, go_left]
 
         allow_wrapping = False
-        weight = regular_move_cost
+        weight = regular_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
-    def get_wrapping_move_states(self):
+    def get_wrapping_move_states(self, base_cost=0):
         directions = []
 
         if self.__is_corner_zero():
@@ -70,12 +76,12 @@ class BoardNode:
                     directions.append(go_down)
 
         allow_wrapping = True
-        weight = wrapping_move_cost
+        weight = wrapping_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
-    def get_diagonal_move_states(self):
+    def get_diagonal_move_states(self, base_cost=0):
         directions = []
 
         if self.__is_corner_zero():
@@ -90,18 +96,18 @@ class BoardNode:
                 directions.append(go_down_left)
 
         allow_wrapping = True
-        weight = diagonal_move_cost
+        weight = diagonal_move_cost + base_cost
 
-        priority_queue = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
-        return priority_queue
+        children_with_weights = self.__generate_priority_queue_children(directions, allow_wrapping, weight)
+        return children_with_weights
 
     def __generate_priority_queue_children(self, directions, allow_wrapping, weight):
         children = self.__generate_children_from_directions(directions, allow_wrapping)
 
-        queue_items = PriorityQueue()
+        children_with_weights = []
         for child in children:
-            queue_items.put(NodeTuple(weight, child))
-        return queue_items
+            children_with_weights.append((weight, child))
+        return children_with_weights
 
     # directions - list of tuples for directions
     def __generate_children_from_directions(self, directions, allow_wrapping):
@@ -122,7 +128,7 @@ class BoardNode:
         # e.g. for regular moves we cannot jump from index 4 to index 0 if board_width is 4,
         # so we have to abandon this move
         if (new_zero_coordinates[0] >= self.__board_height or new_zero_coordinates[0] < 0 or
-                new_zero_coordinates[1] >= self.__board_width or new_zero_coordinates[1] < 0)\
+            new_zero_coordinates[1] >= self.__board_width or new_zero_coordinates[1] < 0) \
                 and not allow_wrapping:
             return None
         else:
@@ -131,7 +137,8 @@ class BoardNode:
             # of boundaries e.g. is now 7, 7 mod 7 = 0
             # -1 mod 7 equals 6
             # 4 mod 7 equals 4 (so for regular moves mod division has no effect)
-            new_zero_coordinates = (new_zero_coordinates[0] % self.__board_height, new_zero_coordinates[1] % self.__board_width)
+            new_zero_coordinates = (
+            new_zero_coordinates[0] % self.__board_height, new_zero_coordinates[1] % self.__board_width)
             return self.__get_new_board_from_swapping_elements(current_zero_coordinates, new_zero_coordinates)
 
     # swap_direction is a tuple of direction coordinated e.g. (1, 0) means go up, (-1, 0) means go down,
@@ -157,7 +164,7 @@ class BoardNode:
         a = self.board[a_tuple[0]][a_tuple[1]]
         b = self.board[b_tuple[0]][b_tuple[1]]
 
-        new_board = BoardNode(self.board.copy())
+        new_board = BoardNode(self.board.copy(), b)
 
         new_board.board[a_tuple[0]][a_tuple[1]] = b
         new_board.board[b_tuple[0]][b_tuple[1]] = a

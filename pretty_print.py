@@ -16,8 +16,6 @@ def print_board_node(node):
     """
     input_board = node.board
 
-
-
     for i in range(len(input_board)):
         row_string = ''
         width = len(str(np.amax(input_board)))
@@ -30,3 +28,11 @@ def print_board_node(node):
                 row_string += add_color(current_number, cyan, width)
 
         print(row_string)
+
+
+def print_node_tuple(node_tuple):
+    string = str(node_tuple.cost) + " " + str(node_tuple.node.num_swapped) + " "
+    for number_row in node_tuple.node.board:
+        for number in number_row:
+            string += add_color(number, cyan, 1) + " "
+    print(string)
