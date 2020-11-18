@@ -50,15 +50,14 @@ def h1(node, goal_nodes):
 # manhatten
 def h2(node, goal_nodes):
     h = [0, 0]
-    for z in range(1):
-        goal_node = goal_nodes[z]
-        for i in range(height):
-            for j in range(width):
-                current_number = node.board[i][j]
-                (i_offset, j_offset) = np.where(goal_node.board == current_number)
-                i_offset, j_offset = i_offset[0], j_offset[0]
-                h[z] += abs(i - i_offset) + abs(j - j_offset)
-    return min(h[0], 1000000)
+    goal_node = goal_nodes[0]
+    for i in range(height):
+        for j in range(width):
+            current_number = node.board[i][j]
+            (i_offset, j_offset) = np.where(goal_node.board == current_number)
+            i_offset, j_offset = i_offset[0], j_offset[0]
+            h[0] += abs(i - i_offset) + abs(j - j_offset)
+    return h[0]
 
 
 def f1(node, goal_nodes, cost):
@@ -112,8 +111,7 @@ def solve(algorithm, h, unique_name, problems):
         create_search_file(searched, str(i) + "_" + unique_name)
 
 def analyze(algorithm, h, unique_name, problems):
-    # problems_amount = len(problems)
-    problems_amount = 10
+    problems_amount = len(problems)
 
     total_paths = [0, 0]
     average_paths = [0, 0]
@@ -165,15 +163,31 @@ def create_search_file(searched, unique_name):
     for item in searched.queue:
         f.write(node_tuple_to_search(item) + "\n")
 
+def get_random_board_node(height, width):
+    sample = generate_sample(height, width)
+    return BoardNode(sample)
+
 
 # solve(ucs, h2, "ucs", problem_lines)
 # solve(gbfs, h1, "gbfs-h1", problem_lines)
-# solve(gbfs, h2, "gbfs-h2", problem_lines)
+solve(gbfs, h2, "gbfs-h2", problem_lines)
 # solve(astar, f1, "astar-h1", problem_lines)
-# solve(astar, f2, "astar-h2", problem_lines)
+solve(astar, f2, "astar-h2", problem_lines)
 
-# solve(ucs, h2, "ucs", analysis_lines)
-analyze(gbfs, h1, "gbfs-h1", analysis_lines)
-solve(gbfs, h2, "gbfs-h2", analysis_lines)
-solve(astar, f1, "astar-h1", analysis_lines)
-solve(astar, f2, "astar-h2", analysis_lines)
+# analyze(ucs, h2, "ucs", analysis_lines)
+# analyze(gbfs, h1, "gbfs-h1", analysis_lines)
+# analyze(gbfs, h2, "gbfs-h2", analysis_lines)
+# analyze(astar, f1, "astar-h1", analysis_lines)
+# analyze(astar, f2, "astar-h2", analysis_lines)
+
+def solve_random_with_best(height, width):
+    board = get_random_board_node(height, width)
+    solution, searched, elapsed = speed(lambda: gbfs(board, goal_nodes, h1))
+
+    if solution is None:
+        print("no solution")
+    else:
+        print("solved puzzle " + str(height) + "x" + str(width) + " in " + str(elapsed) + " seconds")
+
+# solve_random_with_best(height, width)
+
