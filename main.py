@@ -12,6 +12,12 @@ from UCS import  ucs
 from pretty_print import print_board_node, print_node_tuple, node_tuple_to_solution, \
     node_tuple_to_search
 
+solve_mode = False
+analysis_mode = False
+
+solve_mode_path = "c://Code//2x4Puzzle//input.txt"
+analysis_mode_path = "c://Code//2x4Puzzle//50samples.txt"
+
 height = 2
 width = 4
 
@@ -51,13 +57,14 @@ def h1(node, goal_nodes):
 def h2(node, goal_nodes):
     h = [0, 0]
     goal_node = goal_nodes[0]
-    for i in range(height):
-        for j in range(width):
-            current_number = node.board[i][j]
-            (i_offset, j_offset) = np.where(goal_node.board == current_number)
-            i_offset, j_offset = i_offset[0], j_offset[0]
-            h[0] += abs(i - i_offset) + abs(j - j_offset)
-    return h[0]
+    for z in range(2)
+        for i in range(height):
+            for j in range(width):
+                current_number = node.board[i][j]
+                (i_offset, j_offset) = np.where(goal_node.board == current_number)
+                i_offset, j_offset = i_offset[0], j_offset[0]
+                h[z] += abs(i - i_offset) + abs(j - j_offset)
+    return min(h[0], h[1])
 
 
 def f1(node, goal_nodes, cost):
@@ -84,13 +91,13 @@ def speed(action):
     return (result1, result2, time.time() - start)
 
 
-f = open("c://Code//2x4Puzzle//input.txt", "r")
+f = open(solve_mode_path, "r")
 problem_lines = []
 for line in f:
     problem_lines.append(line)
 f.close()
 
-f = open("c://Code//2x4Puzzle//50samples.txt", "r")
+f = open(analysis_mode_path, "r")
 analysis_lines = []
 for line in f:
     analysis_lines.append(line)
@@ -168,17 +175,19 @@ def get_random_board_node(height, width):
     return BoardNode(sample)
 
 
+if solve_mode:
 # solve(ucs, h2, "ucs", problem_lines)
-# solve(gbfs, h1, "gbfs-h1", problem_lines)
-solve(gbfs, h2, "gbfs-h2", problem_lines)
-# solve(astar, f1, "astar-h1", problem_lines)
-solve(astar, f2, "astar-h2", problem_lines)
+    solve(gbfs, h1, "gbfs-h1", problem_lines)
+    solve(gbfs, h2, "gbfs-h2", problem_lines)
+    solve(astar, f1, "astar-h1", problem_lines)
+    solve(astar, f2, "astar-h2", problem_lines)
 
+if analysis_mode:
 # analyze(ucs, h2, "ucs", analysis_lines)
-# analyze(gbfs, h1, "gbfs-h1", analysis_lines)
-# analyze(gbfs, h2, "gbfs-h2", analysis_lines)
-# analyze(astar, f1, "astar-h1", analysis_lines)
-# analyze(astar, f2, "astar-h2", analysis_lines)
+    analyze(gbfs, h1, "gbfs-h1", analysis_lines)
+    analyze(gbfs, h2, "gbfs-h2", analysis_lines)
+    analyze(astar, f1, "astar-h1", analysis_lines)
+    analyze(astar, f2, "astar-h2", analysis_lines)
 
 def solve_random_with_best(height, width):
     board = get_random_board_node(height, width)
