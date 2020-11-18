@@ -111,6 +111,42 @@ def solve(algorithm, h, unique_name, problems):
         create_solution_file(solution, str(i) + "_" + unique_name, elapsed)
         create_search_file(searched, str(i) + "_" + unique_name)
 
+def analyze(algorithm, h, unique_name, problems):
+    # problems_amount = len(problems)
+    problems_amount = 10
+
+    total_paths = [0, 0]
+    average_paths = [0, 0]
+    elapsed = [0, 0]
+    no_solution_counter = 0
+
+    for i in range(problems_amount):
+        line = problems[i].rstrip()
+        starting_node = line.split(" ")
+        starting_node = BoardNode(np.array(list(map(int, starting_node))).reshape(height, width), None)
+
+        # solution, searched, elapsed = speed(lambda: gbfs(starting_node, goal_nodes, lambda node, goal: h2(node, goal)))
+        solution, searched, current_elapsed = speed(lambda: algorithm(starting_node, goal_nodes, h))
+        elapsed[0] += current_elapsed
+
+        if solution is None:
+            no_solution_counter += 1
+            continue
+
+        total_paths[0] += len(solution)
+        total_paths[1] += len(searched.queue)
+
+    average_paths[0] = total_paths[0]/problems_amount
+    average_paths[1] = total_paths[1]/problems_amount
+    elapsed[1] = elapsed[0]/problems_amount
+
+    print("Analysis of " + str(problems_amount) + " problems for " + unique_name + " algorithm:")
+    print("total/average solution paths: " + str(total_paths[0]) + "/" + str(average_paths[0]))
+    print("total/average searched paths: " + str(total_paths[1]) + "/" + str(average_paths[1]))
+    print("total/average elapsed: " + str(elapsed[0]) + "/" + str(elapsed[1]) + " seconds")
+    print("total no solutions: " + str(no_solution_counter))
+    print()
+
 
 def create_solution_file(solution, unique_name, elapsed):
     f = open("c://Code//2x4Puzzle//output//" + unique_name + "_solution.txt", "w")
@@ -130,28 +166,14 @@ def create_search_file(searched, unique_name):
         f.write(node_tuple_to_search(item) + "\n")
 
 
-solve(ucs, h2, "ucs", problem_lines)
+# solve(ucs, h2, "ucs", problem_lines)
 # solve(gbfs, h1, "gbfs-h1", problem_lines)
 # solve(gbfs, h2, "gbfs-h2", problem_lines)
 # solve(astar, f1, "astar-h1", problem_lines)
 # solve(astar, f2, "astar-h2", problem_lines)
-# result = []
-# elapsed = []
-# # result, elapsed = speed(uniform_cost_search(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width)))
-#
-# result, elapsed = speed(lambda: gbfs(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width), lambda node, goal: h1(node, goal)))
-# print("gbfs h1 time: " + str(elapsed))
-# print_node_tuple(result.queue[-1])
-# result, elapsed = speed(lambda: gbfs(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width), lambda node, goal: h2(node, goal)))
-# print("gbfs h2 time: " + str(elapsed))
-# print_node_tuple(result.queue[-1])
-#
-# result, elapsed = speed(lambda: astar(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width), lambda node, goal, cost: f1(node, goal, cost)))
-# print("astar h1 time: " + str(elapsed))
-# print_node_tuple(result.queue[-1])
-# result, elapsed = speed(lambda: astar(BoardNode(generate_sample(height, width)), generate_goal_nodes(height, width), lambda node, goal, cost: f2(node, goal, cost)))
-# print("astar h2 time: " + str(elapsed))
-# print_node_tuple(result.queue[-1])
-#
-# # for node_tuple in result.queue:
-# #     print_node_tuple(node_tuple)
+
+# solve(ucs, h2, "ucs", analysis_lines)
+analyze(gbfs, h1, "gbfs-h1", analysis_lines)
+solve(gbfs, h2, "gbfs-h2", analysis_lines)
+solve(astar, f1, "astar-h1", analysis_lines)
+solve(astar, f2, "astar-h2", analysis_lines)
