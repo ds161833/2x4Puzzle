@@ -10,33 +10,28 @@ def gbfs(initial_node, goal_nodes, h):
 
     # priority queue of NodeTuples
     frontier = PriorityQueue()
-    frontier.put(NodeTuple(0, initial_node, 0))
+    frontier.put(NodeTuple(0, initial_node, 0, None))
     while not frontier.empty():
-
         current_node_tuple = frontier.get()
 
+        explored.put(current_node_tuple)
 
         if is_goal_node(current_node_tuple.node, goal_nodes):
-            explored.put(current_node_tuple)
-            return explored
-
-        explored.put(current_node_tuple)
+            return current_node_tuple.get_parent_chain(), explored
 
         current_children_nodes = current_node_tuple.node.get_possible_children(current_node_tuple.cost)
         current_children = PriorityQueue()
         for child_node in current_children_nodes:
             cost = child_node[0]
             node = child_node[1]
-            current_children.put(NodeTuple(cost, node, h(node, goal_nodes)))
+            h_value = h(node, goal_nodes)
+            current_children.put(NodeTuple(cost, node, h_value, current_node_tuple, 0, cost, h_value))
 
         for child_node_tuple in current_children.queue:
             if (child_node_tuple not in explored.queue) and (child_node_tuple not in frontier.queue):
                 frontier.put(child_node_tuple)
-            else:
-                if child_node_tuple in frontier.queue:
-                    replace_if_higher_cost(child_node_tuple, frontier)
 
-    return None
+    return None, None
 
 
 def is_goal_node(node, goal_nodes):
